@@ -13,8 +13,7 @@ include_directories(
 add_library(
     rune
     Rune.cpp
-    ImageConsProd.cpp
-    AngleSolver.cpp
+    Settings.cpp
 )
 
 #添加动态链接库的位置

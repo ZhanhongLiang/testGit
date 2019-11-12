@@ -4,7 +4,7 @@
  * @Github: https://github.com/ZhanhongLiang
  * @Date: 2019-09-05 21:23:44
  * @LastEditors: Chinwong_Leung
- * @LastEditTime: 2019-11-10 18:01:22
+ * @LastEditTime: 2019-11-12 19:06:01
  */
 #define BUFF_DEBUG
 
@@ -13,10 +13,10 @@
 #include <iostream>
 #include <string>
 #include <thread>
-#include "../../include/rune/ImageConsProd.h"
+//#include "../../include/rune/ImageConsProd.h"
 #include "../../include/rune/Rune.h"
-#include "../../include/rune/Settings.hpp"
-//#include "../rune/AngleSolver.hpp"
+#include "include/rune/Settings.h"
+#include "include/rune/AngleSolver.hpp"
 //#include "Settings.hpp"
 
 int main() {
@@ -24,6 +24,9 @@ int main() {
   // AngleSolverFactory angleSlover;
   // Settings settings("D:/gitrepo/Robobigsymbol/src/rune/rune/Rune.xml");
   // angleSlover.SetTargetSize(122, 233, AngleSolverFactory::TARGET_RUNE);
+  char* file = "C:/Users/25212/Documents/RM_BUFF/config/param_config.xml";
+  Settings settings_(file);
+
   cv::Mat frame, bin_img;
   int tSelect = 3;
   int status = 1;
@@ -31,13 +34,6 @@ int main() {
   double angle_x;
   double angle_y;
   double dist;
-
-  /**
-   * @brief:
-   * @param {type}
-   * @return:
-   * @author: Chinwong_Leung
-   */
   // int mode = 1;
 
   VideoCapture capture;

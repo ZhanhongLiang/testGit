@@ -12,7 +12,7 @@
 #define WINDOWS_DEBUG
 
 #include "../../include/header/Header.h"
-#include "./AngleSolver.hpp"
+//#include "./AngleSolver.hpp"
 //#include "driver/Camera.h"
 #define NO_TARGET -1
 #define MAX_NUM 921600//???

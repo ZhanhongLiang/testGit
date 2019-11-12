@@ -4,7 +4,7 @@
  * @Github: https://github.com/ZhanhongLiang
  * @Date: 2019-10-23 22:03:21
  * @LastEditors: Chinwong_Leung
- * @LastEditTime: 2019-10-28 21:32:38
+ * @LastEditTime: 2019-11-12 19:50:48
  */
 
 // TODO角度转换的实现
@@ -12,20 +12,17 @@
 #include "../../include/rune/AngleSolver.hpp"
 
 #ifdef MINECODE
-AngleSolver::AngleSolver(
-    string file_path) /*, float c_x, float c_y, float c_z, float barrel_y*/
+//初始化作用
+AngleSolver::AngleSolver(Settings *_settings,
+                         OtherParam *_otherParam) /*, float c_x, float c_y,
+                                                     float c_z, float barrel_y*/
 {
-  FileStorage fs(file_path, FileStorage::READ);
   // barrel_ptz_offset_y = barrel_y;
   // ptz_camera_x = c_x;
   // ptz_camera_y = c_y;
   // ptz_camera_z = c_z;
+  //相机内矩阵和外矩
 
-  fs["Camera_Matrix"] >> cameraMatrix;
-  fs["Distortion_Coefficients"] >> distCoeffs;
-  //相机内矩阵和外矩阵
-  std::cout << cameraMatrix << std::endl;
-  std::cout << distCoeffs << std::endl;
   GetP3Point(0, Point2f(0, 0));
   Mat(objectPoints).convertTo(object_point_mat, CV_32F);
   Mat rvec(3, 1, DataType<double>::type);

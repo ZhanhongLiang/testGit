@@ -20,7 +20,7 @@ add_executable(main main.cpp)
 target_include_directories(main
   PUBLIC
   ${OpenCV_INCLUDE_DIRS}
-  ${CURRENT_PROJET_DIR}/include
+  ${CMAKE_SOURCR_DIR}/include
 )
 #链接时用，指明链接的路径
 #link_directories(${CMAKE_LIBRARY_OUTPUT_DIRECTORY}

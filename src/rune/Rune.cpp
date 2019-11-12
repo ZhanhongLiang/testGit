@@ -548,7 +548,6 @@ bool Buff_Detector::GetArmorCenter(
  */
 void Buff_Detector::GetArmorRect(const RotatedRect &rect) {
   finalArmor2Angle = rect;
-  return;
 }
 
 /**
