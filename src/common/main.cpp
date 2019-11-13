@@ -4,7 +4,7 @@
  * @Github: https://github.com/ZhanhongLiang
  * @Date: 2019-09-05 21:23:44
  * @LastEditors: Chinwong_Leung
- * @LastEditTime: 2019-11-12 19:06:01
+ * @LastEditTime: 2019-11-13 21:14:55
  */
 #define BUFF_DEBUG
 
@@ -15,8 +15,8 @@
 #include <thread>
 //#include "../../include/rune/ImageConsProd.h"
 #include "../../include/rune/Rune.h"
-#include "include/rune/Settings.h"
 #include "include/rune/AngleSolver.hpp"
+#include "include/rune/Settings.hpp"
 //#include "Settings.hpp"
 
 int main() {

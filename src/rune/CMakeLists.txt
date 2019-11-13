@@ -13,6 +13,7 @@ include_directories(
 add_library(
     rune
     Rune.cpp
+    AngleSolver.cpp
     Settings.cpp
 )
 

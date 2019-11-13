@@ -4,7 +4,7 @@
  * @Github: https://github.com/ZhanhongLiang
  * @Date: 2019-10-23 22:03:21
  * @LastEditors: Chinwong_Leung
- * @LastEditTime: 2019-11-12 19:50:48
+ * @LastEditTime: 2019-11-13 21:10:11
  */
 
 // TODO角度转换的实现
@@ -13,20 +13,23 @@
 
 #ifdef MINECODE
 //初始化作用
-AngleSolver::AngleSolver(Settings *_settings,
-                         OtherParam *_otherParam) /*, float c_x, float c_y,
-                                                     float c_z, float barrel_y*/
+AngleSolver::AngleSolver(Settings *_settings, OtherParam *_otherParam,
+                         Flag *_flag) /*, float c_x, float c_y,
+                             float c_z, float barrel_y*/
 {
   // barrel_ptz_offset_y = barrel_y;
   // ptz_camera_x = c_x;
   // ptz_camera_y = c_y;
   // ptz_camera_z = c_z;
   //相机内矩阵和外矩
-
+  settings = _settings;
+  otherParam = _otherParam;
+  flag = _flag;
   GetP3Point(0, Point2f(0, 0));
   Mat(objectPoints).convertTo(object_point_mat, CV_32F);
   Mat rvec(3, 1, DataType<double>::type);
   Mat tvec(3, 1, DataType<double>::type);
+  FileStorage fs()
 }
 
 /**
@@ -40,15 +43,17 @@ void AngleSolver::GetRuneAngle(
         rect /*,float ballet_speed, float rune_angle, /*float pre_angle,*/
     /*float gimbal_pitch, float &angle_x, float &angle_y, float &dist*/) {
   //返回rvec,tvec;
-
   //用返回的rect找值
-  solvePnP(objectPoints, imagePoints, cameraMatrix, distCoeffs, rvec, tvec);
+  double targetP2P;
+  GetP2Point(rect, targetP2P, Point2f(0, 0));
+  imagePoints = targetP2P;
+  solvePnP(objectPoints, imagePoints, )
   // std::cout << "rvec:" << rvec.at<double>(2,0) << std::endl;
   // std::cout << "tvec:" << tvec << std::endl;
 }
 
 /**
- * @brief: 获得装甲板的世界坐标
+ * @brief: 获得装甲板的世界坐标，两个已知条件中一个条件
  * @param uint mode
  * @param Point3f offset_point//补偿点值
  * @return:
@@ -57,10 +62,9 @@ void AngleSolver::GetRuneAngle(
 void AngleSolver::GetP3Point(uint mode, Point2f offset_point) {
   objectPoints.clear();
   double half_x, half_y;
-  double width_target = 230;
-  double height_target = 160;
-  half_x = width_target / 2.0;
-  half_y = height_target / 2.0;
+
+  half_x = flag->flagArmorParam.flagArmorParamWidth / 2.0;
+  half_y = flag->flagArmorParam.flagArmorParamHeight / 2.0;
   objectPoints.push_back(Point3f(-half_x, -half_y, 0) +
                          Point3f(offset_point.x, offset_point.y, 0));
   objectPoints.push_back(Point3f(half_x, -half_y, 0) +
@@ -72,14 +76,15 @@ void AngleSolver::GetP3Point(uint mode, Point2f offset_point) {
 }
 
 /**
- * @brief: 获得图像的像素点值
+ * @brief: 获得图像的像素点值,两个已知条件中一个条件
  * @param {type}
+ * @return: target2D
  * @return:
  * @author: Chinwong_Leung
  */
 
-void GetP2Point(RotatedRect &rect, vector<cv::Point2f> &target2D,
-                Point2f offset_point) {
+void AngleSolver::GetP2Point(RotatedRect &rect, vector<cv::Point2f> &target2D,
+                             Point2f offset_point) {
   Point2f lu, ld, ru, rd;
   Point2f vertices[4];
   rect.points(vertices);
@@ -143,5 +148,4 @@ void GetP2Point(RotatedRect &rect, vector<cv::Point2f> &target2D,
 
 //官方代码修改
 #ifndef MINECODE
-
 #endif
