@@ -4,11 +4,19 @@
  * @Github: https://github.com/ZhanhongLiang
  * @Date: 2019-09-05 20:23:33
  * @LastEditors: Chinwong_Leung
- * @LastEditTime: 2019-11-10 18:11:38
+ * @LastEditTime: 2019-11-16 18:10:07
  */
 
 #define BUFF_DEBUG
 #include "../../include/rune/Rune.h"
+
+using namespace cv;
+using namespace std;
+using namespace detect::angle_solver;
+
+namespace detect {
+
+namespace armor {
 
 Buff_Detector::Buff_Detector() {}
 
@@ -384,9 +392,7 @@ bool Buff_Detector::GetArmorCenter(
             if (final_area > max_area) {
               max_area = final_area;
               finalArmor = armorRect;
-
               GetArmorRect(finalArmor);
-
               findFlag = true;
             }
           }
@@ -538,7 +544,7 @@ bool Buff_Detector::GetArmorCenter(
 }
 
 /**
- * @brief:得到装甲板中心点
+ * @brief:
  * @param src_img
  * @param bMode
  * @param data
@@ -869,6 +875,7 @@ bool Buff_Detector::GetFrameClock() {
   if (times < FRAME_NUM) {
     times++;
     data.push_back(lastData);
+    return false;
   } else {
     // 记录角度和象限
     float angles[FRAME_NUM];
@@ -902,6 +909,7 @@ bool Buff_Detector::GetFrameClock() {
     data.clear();
     return true;
   }
+  return true;
 }
 
 /**
@@ -942,3 +950,5 @@ void Buff_Detector::IsCut(const ArmorData new_data, int &status) {
     }
   }
 }
+}  // namespace armor
+}  // namespace detect

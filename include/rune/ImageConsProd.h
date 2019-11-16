@@ -11,7 +11,6 @@
 #include "../header/Header.h"
 #include "./AngleSolver.hpp"
 #include "./Rune.h"
-#include "./Settings.h"
 
 #define EXPOSURE_RUNE 2000
 #define RUNE_WIDTH 888

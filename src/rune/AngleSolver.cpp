@@ -4,33 +4,18 @@
  * @Github: https://github.com/ZhanhongLiang
  * @Date: 2019-10-23 22:03:21
  * @LastEditors: Chinwong_Leung
- * @LastEditTime: 2019-11-13 21:10:11
+ * @LastEditTime: 2019-11-16 18:34:03
  */
 
 // TODO角度转换的实现
-
 #include "../../include/rune/AngleSolver.hpp"
+
+namespace detect {
+
+namespace angle_solver {
 
 #ifdef MINECODE
 //初始化作用
-AngleSolver::AngleSolver(Settings *_settings, OtherParam *_otherParam,
-                         Flag *_flag) /*, float c_x, float c_y,
-                             float c_z, float barrel_y*/
-{
-  // barrel_ptz_offset_y = barrel_y;
-  // ptz_camera_x = c_x;
-  // ptz_camera_y = c_y;
-  // ptz_camera_z = c_z;
-  //相机内矩阵和外矩
-  settings = _settings;
-  otherParam = _otherParam;
-  flag = _flag;
-  GetP3Point(0, Point2f(0, 0));
-  Mat(objectPoints).convertTo(object_point_mat, CV_32F);
-  Mat rvec(3, 1, DataType<double>::type);
-  Mat tvec(3, 1, DataType<double>::type);
-  FileStorage fs()
-}
 
 /**
  * @brief:
@@ -38,16 +23,14 @@ AngleSolver::AngleSolver(Settings *_settings, OtherParam *_otherParam,
  * @return:
  * @author: Chinwong_Leung
  */
-void AngleSolver::GetRuneAngle(
-    RotatedRect
-        rect /*,float ballet_speed, float rune_angle, /*float pre_angle,*/
-    /*float gimbal_pitch, float &angle_x, float &angle_y, float &dist*/) {
+void AngleSolver::GetRuneAngle() {
   //返回rvec,tvec;
   //用返回的rect找值
-  double targetP2P;
-  GetP2Point(rect, targetP2P, Point2f(0, 0));
-  imagePoints = targetP2P;
-  solvePnP(objectPoints, imagePoints, )
+  // vector<Point2f> targetP2P;
+  // GetP2Point(rect, targetP2P, Point2f(0, 0));
+  // imagePoints = targetP2P;
+  solvePnP(objectPoints, imagePoints, cameraMatrix, distCoeffs, rvec, tvec);
+  std::cout << "tvec" << tvec.at<double>(2, 0) << std::endl;
   // std::cout << "rvec:" << rvec.at<double>(2,0) << std::endl;
   // std::cout << "tvec:" << tvec << std::endl;
 }
@@ -73,6 +56,11 @@ void AngleSolver::GetP3Point(uint mode, Point2f offset_point) {
                          Point3f(offset_point.x, offset_point.y, 0));
   objectPoints.push_back(Point3f(-half_x, half_y, 0) +
                          Point3f(offset_point.x, offset_point.y, 0));
+
+  std::cout << "objectPoints1:" << objectPoints[0] << std::endl;
+  std::cout << "objectPoints1:" << objectPoints[1] << std::endl;
+  std::cout << "objectPoints1:" << objectPoints[2] << std::endl;
+  std::cout << "objectPoints1:" << objectPoints[3] << std::endl;
 }
 
 /**
@@ -117,6 +105,7 @@ void AngleSolver::GetP2Point(RotatedRect &rect, vector<cv::Point2f> &target2D,
  * @return:
  * @author: Chinwong_Leung
  */
+
 // float AngleSolver::GetRunePitch(float dist, float tvecy_y, float
 // ballet_speed)
 // {
@@ -144,8 +133,34 @@ void AngleSolver::GetP2Point(RotatedRect &rect, vector<cv::Point2f> &target2D,
 //     }
 //     return a;
 // }
+/**
+ * @brief:
+ * @param {type}
+ * @return:
+ * @author: Chinwong_Leung
+ */
+void AngleSolver::GetCamerParam() {
+  Settings &settings = *settings_;
+  FileStorage fs(settings.intrinsic_file_480, FileStorage::READ);
+  fs["Camera_Matrix"] >> cameraMatrix;
+  fs["Distortion_Coefficients"] >> distCoeffs;
+  // std::cout << "cameraMatrix:" << cameraMatrix << std::endl;
+  // std::cout << "cameraMatrix:" << distCoeffs << std::endl;
+  fs.release();
+}
+
+/**
+ * @brief:
+ * @param {type}
+ * @return:
+ * @author: Chinwong_Leung
+ */
+void AngleSolver::GetRuneRect() {}
+
 #endif
 
 //官方代码修改
 #ifndef MINECODE
 #endif
+}  // namespace angle_solver
+}  // namespace detect

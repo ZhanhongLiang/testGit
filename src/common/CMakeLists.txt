@@ -4,10 +4,11 @@ message(STATUS "Configuring sub_project: common")
 
 #包括的头文件linux
 include_directories(
-    ${CMAKE_SOURCR_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}
     /usr/local/include
-    ${CMAKE_SOURCR_DIR}/include/rune
-    ${CMAKE_SOURCR_DIR}/include/header
+    ${CURRENT_PROJET_DIR}/include/rune
+    ${CURRENT_PROJET_DIR}/include/header
+    ${CURRENT_PROJET_DIR}/include
 )
 
 #获取文件路径的所有源文件
@@ -19,8 +20,9 @@ add_executable(main main.cpp)
 #项目包括的目录
 target_include_directories(main
   PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}
   ${OpenCV_INCLUDE_DIRS}
-  ${CMAKE_SOURCR_DIR}/include
+  ${CURRENT_PROJET_DIR}/include
 )
 #链接时用，指明链接的路径
 #link_directories(${CMAKE_LIBRARY_OUTPUT_DIRECTORY}

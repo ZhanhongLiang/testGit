@@ -38,9 +38,7 @@ find_package(OpenCV REQUIRED)
 
 #设置头文件
 include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/inlcude/header
-    ${CMAKE_CURRENT_SOURCE_DIR}/inlcude/rune
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${OpenCV_INCLUDE_DIRS}
 )
 

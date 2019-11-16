@@ -4,7 +4,7 @@
  * @Github: https://github.com/ZhanhongLiang
  * @Date: 2019-09-05 21:23:44
  * @LastEditors: Chinwong_Leung
- * @LastEditTime: 2019-11-13 21:14:55
+ * @LastEditTime: 2019-11-16 19:40:32
  */
 #define BUFF_DEBUG
 
@@ -14,20 +14,26 @@
 #include <string>
 #include <thread>
 //#include "../../include/rune/ImageConsProd.h"
+#include "../../include/rune/AngleSolver.hpp"
 #include "../../include/rune/Rune.h"
-#include "include/rune/AngleSolver.hpp"
-#include "include/rune/Settings.hpp"
-//#include "Settings.hpp"
+using namespace std;
+string file = "C:/Users/25212/Documents/RM_BUFF/config/param_config.xml";
+cv::Mat cameraMatrix1;
+cv::Mat distCoeffs1;
 
 int main() {
-  Buff_Detector buff_Detector;
-  // AngleSolverFactory angleSlover;
+  detect::armor::Buff_Detector buff_Detector;
+  detect::angle_solver::Flag flag1;
+  detect::angle_solver::Settings settings_file(file);
+  detect::angle_solver::AngleSolver angle(&settings_file, &flag1);
+  angle.GetCamerParam();
+
+  // Settings settings_file(file);
+  // AngleSolver angleSlover(settings_file);
   // Settings settings("D:/gitrepo/Robobigsymbol/src/rune/rune/Rune.xml");
   // angleSlover.SetTargetSize(122, 233, AngleSolverFactory::TARGET_RUNE);
-  char* file = "C:/Users/25212/Documents/RM_BUFF/config/param_config.xml";
-  Settings settings_(file);
-
   cv::Mat frame, bin_img;
+  cv::RotatedRect finalArmor;
   int tSelect = 3;
   int status = 1;
   int mode = 0;
@@ -37,7 +43,7 @@ int main() {
   // int mode = 1;
 
   VideoCapture capture;
-  Point2f pt;
+  Point2f pt = Point2f(0, 0);
   int frameCount = 0;
   capture.open("C:\\Users\\25212\\Documents\\Buff\\Buff.mp4");
   if (!capture.isOpened()) {
@@ -50,6 +56,8 @@ int main() {
         break;
       }
       buff_Detector.Detect(frame, tSelect, pt, status);
+
+      // angle.GetRuneAngle(finalArmor);
       // angleSlover(buff_Detector.finalArmor2Angle,
       // angleSlover.TARGET_RUNE ,angle_x, angle_y, dist);
       frameCount++;
