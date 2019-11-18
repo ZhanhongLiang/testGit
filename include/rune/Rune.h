@@ -4,12 +4,13 @@
  * @Github: https://github.com/ZhanhongLiang
  * @Date: 2019-09-05 20:23:52
  * @LastEditors: Chinwong_Leung
- * @LastEditTime: 2019-11-16 16:16:04
+ * @LastEditTime: 2019-11-17 19:09:18
  */
 
 #ifndef BUFF_DETECTOR_H_
 #define BUFF_DETECTOR_H_
 #define WINDOWS_DEBUG
+#include "../filter/Filter.hpp"
 #include "../header/Header.h"
 #include "AngleSolver.hpp"
 
@@ -138,6 +139,7 @@ class Buff_Detector {
   // bool SetImage(const Mat src_img, Mat &, Point2f &offset);
   //初始化文件
   Buff_Detector();
+
   bool SetBinary(const Mat src_img, Mat &bin_img, int bMode);
   bool GetArmorCenter(const Mat src_img, const int bMode, ArmorData &data,
                       Point2f offset);  //, ArmorData &data, point2f offset);
@@ -151,6 +153,7 @@ class Buff_Detector {
   bool Change2Angle(const int quadrant, const float angle, float &tran_angle);
   void GetArmorRect(const RotatedRect &rect);
   void IsCut(const ArmorData new_data, int &status);
+  void clear();
 
   bool GetFrameClock();
   // bool GetTargetFinalArmor();
@@ -172,6 +175,30 @@ class Object {
   float angle_;
   float diff_angle;
 };
+
+/**
+ * @brief:卡尔曼追踪类,决定神符的点预测
+ * @param {type}
+ * @return:
+ * @author: Chinwong_Leung
+ */
+// class Buff_Detector;
+
+// class KalmanFilterTrack {
+//  public:
+//   KalmanFilterTrack();
+//   struct KalmanFilterPoint {
+//     Point2f currentPoint;
+//     Point2f kalmanPoint;
+//     KalmanFilterPoint() {
+//       currentPoint(0, 0);
+//       kalmanPoint(0, 0);
+//     }
+//   };
+//   detect::kalmanfilter::KalmanFilter kalmanFilter_();
+//   Buff_Detector buffDetector;
+//   KalmanFilterPoint kalmanFilterPoint_;
+// };
 
 }  // namespace armor
 }  // namespace detect

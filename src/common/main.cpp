@@ -4,7 +4,7 @@
  * @Github: https://github.com/ZhanhongLiang
  * @Date: 2019-09-05 21:23:44
  * @LastEditors: Chinwong_Leung
- * @LastEditTime: 2019-11-16 19:40:32
+ * @LastEditTime: 2019-11-17 22:42:04
  */
 #define BUFF_DEBUG
 
@@ -14,6 +14,7 @@
 #include <string>
 #include <thread>
 //#include "../../include/rune/ImageConsProd.h"
+#include "../../include/filter/Filter.hpp"
 #include "../../include/rune/AngleSolver.hpp"
 #include "../../include/rune/Rune.h"
 using namespace std;
@@ -22,6 +23,7 @@ cv::Mat cameraMatrix1;
 cv::Mat distCoeffs1;
 
 int main() {
+  detect::kalmanfilter::KalmanFilter kalmanFilter_(2, 4);
   detect::armor::Buff_Detector buff_Detector;
   detect::angle_solver::Flag flag1;
   detect::angle_solver::Settings settings_file(file);
@@ -40,10 +42,13 @@ int main() {
   double angle_x;
   double angle_y;
   double dist;
+  Point2f kalmanFilterPoint = Point2f(0, 0);
+  float anti_range = 0.2;
   // int mode = 1;
 
   VideoCapture capture;
   Point2f pt = Point2f(0, 0);
+  Point2f anti_kalmanPoint(0, 0);
   int frameCount = 0;
   capture.open("C:\\Users\\25212\\Documents\\Buff\\Buff.mp4");
   if (!capture.isOpened()) {
@@ -56,7 +61,25 @@ int main() {
         break;
       }
       buff_Detector.Detect(frame, tSelect, pt, status);
-
+      kalmanFilterPoint = kalmanFilter_.run(pt.x, pt.y);
+      if ((pt.x + anti_range * (pt.x - kalmanFilterPoint.x)) <= frame.cols ||
+          (pt.x + anti_range * (pt.x - kalmanFilterPoint.x)) >= 0 ||
+          (pt.y + anti_range * (pt.y - kalmanFilterPoint.y)) <= frame.rows ||
+          (pt.y + anti_range * (pt.y - kalmanFilterPoint.y)) >= 0) {
+        if (abs(pt.x - kalmanFilterPoint.x) > 3 &&
+            abs(pt.y - kalmanFilterPoint.y > 3)) {
+          anti_kalmanPoint.x = pt.x + anti_range * (pt.x);
+          anti_kalmanPoint.y = pt.y + anti_range * (pt.y);
+        } else {
+          anti_kalmanPoint.x = pt.x;
+          anti_kalmanPoint.y = pt.y;
+        }
+      } else {
+        anti_kalmanPoint.x = pt.x;
+        anti_kalmanPoint.y = pt.y;
+      }
+      std::cout << "anti_kalmanPoint.x:" << anti_kalmanPoint.x << std::endl;
+      std::cout << "anti_kalmanPoint.y:" << anti_kalmanPoint.y << std::endl;
       // angle.GetRuneAngle(finalArmor);
       // angleSlover(buff_Detector.finalArmor2Angle,
       // angleSlover.TARGET_RUNE ,angle_x, angle_y, dist);

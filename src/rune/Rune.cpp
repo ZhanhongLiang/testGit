@@ -4,7 +4,7 @@
  * @Github: https://github.com/ZhanhongLiang
  * @Date: 2019-09-05 20:23:33
  * @LastEditors: Chinwong_Leung
- * @LastEditTime: 2019-11-16 18:10:07
+ * @LastEditTime: 2019-11-17 15:58:05
  */
 
 #define BUFF_DEBUG
@@ -392,7 +392,6 @@ bool Buff_Detector::GetArmorCenter(
             if (final_area > max_area) {
               max_area = final_area;
               finalArmor = armorRect;
-              GetArmorRect(finalArmor);
               findFlag = true;
             }
           }
@@ -590,8 +589,8 @@ void Buff_Detector::Detect(const Mat frame, int Mode, Point2f &pt,
         pt = preCenter;
       }
     }
-    lastData = armordata;  //这个是最后一次的数据存储到了
-    GetFrameClock();
+    lastData = armordata;  //上一次的数据
+    GetFrameClock();  //这个是判断神符顺逆时针、これは判断力です！！
     // std::cout << "preCenter:" << pt << std::endl;
     circle(debug_src_img, pt, 10, Scalar(255, 255, 0), 1, 8);
   } else if (tSelect == 5 || tSelect == 6) {
@@ -900,10 +899,10 @@ bool Buff_Detector::GetFrameClock() {
     }
     if (positive > negetive) {
       dirFlag = true;
-      cout << "顺时针:" << positive << endl;
+      cout << "CLOCK:" << positive << endl;
     } else if (positive < negetive) {
       dirFlag = false;
-      cout << "逆时针:" << negetive << endl;
+      cout << "ANTICLOCK:" << negetive << endl;
     }
     times = 0;
     data.clear();
@@ -950,5 +949,13 @@ void Buff_Detector::IsCut(const ArmorData new_data, int &status) {
     }
   }
 }
+
+void Buff_Detector::clear() {
+  mode = 0;
+  frame_cnt = 0;
+  memset(&lastData, 0, sizeof(ArmorData));
+  memset(&lostData, 0, sizeof(ArmorData));
+}
+
 }  // namespace armor
 }  // namespace detect
