@@ -4,7 +4,7 @@
  * @Github: https://github.com/ZhanhongLiang
  * @Date: 2019-09-05 20:23:52
  * @LastEditors: Chinwong_Leung
- * @LastEditTime: 2019-11-17 19:09:18
+ * @LastEditTime: 2019-11-20 19:38:23
  */
 
 #ifndef BUFF_DETECTOR_H_
@@ -78,7 +78,8 @@ class Buff_Detector {
     int bMode;  //灰度图的模式
     int pMode;  //预测画圆的模式
     Mat element;
-    int radius;              //圆的直径
+    int radius;  //圆的直径
+
     float noise_point_area;  //噪点的面积
     int flabellum_area_min;  //扇子的面积;
     int flabellum_area_max;
@@ -91,6 +92,7 @@ class Buff_Detector {
 
     int cutLimitedTime;  //时间限制？？
     float preAngle;      //预测角度
+    float preAngle2;     //第二种点的预测算法
     DectParam() {
       //--------半径，这个修改可以调整画圆的大小---------
       radius = 268;
@@ -112,6 +114,10 @@ class Buff_Detector {
       cutLimitedTime = 40;     // 400ms
                                // predict
       preAngle = CV_PI / 7.8;  //预测角度的大小
+      preAngle2 =
+          CV_PI /
+          8;  // sita = w *
+              // t;（t是延迟时间，大约的估计时间，是云台延迟和传输数据的延迟）
     }
   };
 
@@ -143,8 +149,8 @@ class Buff_Detector {
   bool SetBinary(const Mat src_img, Mat &bin_img, int bMode);
   bool GetArmorCenter(const Mat src_img, const int bMode, ArmorData &data,
                       Point2f offset);  //, ArmorData &data, point2f offset);
-  void Detect(const Mat src_img, int Mode, Point2f &pt,
-              int &status);  //,Point2f &pt,int status)
+  void Detect(const Mat src_img, int Mode, Point2f &pt, int &status,
+              RotatedRect &rect);  //,Point2f &pt,int status)
   float Distance(const Point2f pt1, const Point2f pt2);
   bool CircleFit(const vector<Point2f> &pt, Point2f &R_center);
   bool Predict(const ArmorData data, Point2f &preCenter, int pMode);

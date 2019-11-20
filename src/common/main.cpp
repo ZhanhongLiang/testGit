@@ -4,7 +4,7 @@
  * @Github: https://github.com/ZhanhongLiang
  * @Date: 2019-09-05 21:23:44
  * @LastEditors: Chinwong_Leung
- * @LastEditTime: 2019-11-17 22:42:04
+ * @LastEditTime: 2019-11-19 21:19:45
  */
 #define BUFF_DEBUG
 
@@ -28,6 +28,7 @@ int main() {
   detect::angle_solver::Flag flag1;
   detect::angle_solver::Settings settings_file(file);
   detect::angle_solver::AngleSolver angle(&settings_file, &flag1);
+
   angle.GetCamerParam();
 
   // Settings settings_file(file);
@@ -35,13 +36,13 @@ int main() {
   // Settings settings("D:/gitrepo/Robobigsymbol/src/rune/rune/Rune.xml");
   // angleSlover.SetTargetSize(122, 233, AngleSolverFactory::TARGET_RUNE);
   cv::Mat frame, bin_img;
-  cv::RotatedRect finalArmor;
+  cv::RotatedRect finalArmor_;
   int tSelect = 3;
   int status = 1;
   int mode = 0;
-  double angle_x;
-  double angle_y;
-  double dist;
+  float angle_x;
+  float angle_y;
+  float dist;
   Point2f kalmanFilterPoint = Point2f(0, 0);
   float anti_range = 0.2;
   // int mode = 1;
@@ -50,7 +51,7 @@ int main() {
   Point2f pt = Point2f(0, 0);
   Point2f anti_kalmanPoint(0, 0);
   int frameCount = 0;
-  capture.open("C:\\Users\\25212\\Documents\\Buff\\Buff.mp4");
+  capture.open("D:/RM2019 能量机关视频/RedCloseBigBuff.mov");
   if (!capture.isOpened()) {
     std::cout << "could not find the mp4!!" << std::endl;
   } else {
@@ -60,7 +61,11 @@ int main() {
         std::cout << "Not the frame!!" << std::endl;
         break;
       }
-      buff_Detector.Detect(frame, tSelect, pt, status);
+      buff_Detector.Detect(frame, tSelect, pt, status, finalArmor_);
+      // std::cout << "pt.x: " << pt.x << std::endl;
+      // std::cout << "pt.y: " << pt.y << std::endl;
+      // angle.OnePointSolvePnP(pt, angle_x, angle_y);
+      angle.FourPointSolvePnP(finalArmor_, angle_x, angle_y, dist);
       kalmanFilterPoint = kalmanFilter_.run(pt.x, pt.y);
       if ((pt.x + anti_range * (pt.x - kalmanFilterPoint.x)) <= frame.cols ||
           (pt.x + anti_range * (pt.x - kalmanFilterPoint.x)) >= 0 ||

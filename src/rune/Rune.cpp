@@ -4,7 +4,7 @@
  * @Github: https://github.com/ZhanhongLiang
  * @Date: 2019-09-05 20:23:33
  * @LastEditors: Chinwong_Leung
- * @LastEditTime: 2019-11-17 15:58:05
+ * @LastEditTime: 2019-11-20 21:44:59
  */
 
 #define BUFF_DEBUG
@@ -369,7 +369,7 @@ bool Buff_Detector::GetArmorCenter(
           //
           Point2f P[4];
           armorRect.points(P);
-          vector<Point> P1;
+          vector<Point2f> P1;
           for (int i = 0; i < 4; i++) {
             P1.push_back(P[i]);
           }
@@ -392,15 +392,17 @@ bool Buff_Detector::GetArmorCenter(
             if (final_area > max_area) {
               max_area = final_area;
               finalArmor = armorRect;
+              finalArmor2Angle = finalArmor;
               findFlag = true;
             }
           }
         }
-        // imshow("finalrio", finalRoi);
+        imshow("finalrio", finalRoi);
       }
       if (findFlag = false) {
         std::cout << "NO ARMOR FILED!!" << std::endl;
         return false;
+      } else {
       }
     }
 
@@ -562,8 +564,8 @@ void Buff_Detector::GetArmorRect(const RotatedRect &rect) {
  * @return:
  * @author: Chinwong_Leung
  */
-void Buff_Detector::Detect(const Mat frame, int Mode, Point2f &pt,
-                           int &status)  //,Point2f &pt,int status)
+void Buff_Detector::Detect(const Mat frame, int Mode, Point2f &pt, int &status,
+                           RotatedRect &rect)  //,Point2f &pt,int status)
 {
   Point2f offset = Point2f(0, 0);
   Mat src = frame;
@@ -587,6 +589,7 @@ void Buff_Detector::Detect(const Mat frame, int Mode, Point2f &pt,
         pt = Point2f(0, 0);
       } else {
         pt = preCenter;
+        rect = finalArmor2Angle;
       }
     }
     lastData = armordata;  //上一次的数据
@@ -672,7 +675,7 @@ bool Buff_Detector::CircleFit(const vector<Point2f> &pt, Point2f &R_center) {
 }
 
 /**
- * @brief: 预测函数
+ * @brief: 预测圆周的方法
  * @param vector<Point2f> &pt
  * @param Point2f R_center
  * @return: true/false
@@ -683,6 +686,7 @@ bool Buff_Detector::Predict(const ArmorData data, Point2f &preCenter,
                             int pMode) {
   int countNum = 200;
   vector<Point2f> armorPrePoints;
+  //第一种方法的思想是采集足够多的点，然后利用点来进行圆的二次拟合
   if (pMode == FIT_CIRCLE) {
     static int count = 0;
     if (count < countNum) {
@@ -783,6 +787,21 @@ bool Buff_Detector::Predict(const ArmorData data, Point2f &preCenter,
     circle(debug_src_img, preCenter, 5, Scalar(0, 0, 255), 1, 8);
     std::cout << "preCenter" << preCenter << std::endl;
     imshow("TAGENT:", debug_src_img);
+  }
+  //使用已经固定的时间差进行点的预测
+  else {
+    Point2f nowPoint = Point2f(0, 0);
+    Point2f prePoint = Point2f(0, 0);
+
+    nowPoint.x = data.armorCenter.x - data.RadiusCenter.x;
+    nowPoint.y = data.armorCenter.y - data.RadiusCenter.y;
+
+    prePoint.x =
+        nowPoint.x * cos(param.preAngle2) - nowPoint.y * sin(param.preAngle2);
+    prePoint.y =
+        nowPoint.x * sin(param.preAngle2) + nowPoint.y * cos(param.preAngle2);
+    preCenter.x = prePoint.x + data.RadiusCenter.x;
+    preCenter.y = prePoint.y + data.RadiusCenter.y;
   }
   return true;
 }

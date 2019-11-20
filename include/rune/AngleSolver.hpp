@@ -4,7 +4,7 @@
  * @Github: https://github.com/ZhanhongLiang
  * @Date: 2019-10-23 22:02:27
  * @LastEditors: Chinwong_Leung
- * @LastEditTime: 2019-11-16 18:34:30
+ * @LastEditTime: 2019-11-19 18:36:33
  */
 
 #ifndef ANGLESOLVER_H
@@ -33,7 +33,7 @@ struct OtherParam {
     angle_yaw = 0;
   }
 };
-
+enum { AngleMethod1 = 1, AngleMethod2 = 2, AngleMethod3 = 0 };
 class Settings;  //这个必须加，要不然报错，调用类的时候必须先声明类；
 
 class Flag;  //这个必须加，要不然报错，调用类的时候必须先声明类；
@@ -60,7 +60,12 @@ class AngleSolver {
   void GetP2Point(RotatedRect &rect, vector<cv::Point2f> &target2D,
                   Point2f offset_point);
 
-  void GetRuneRect();
+  //单点角度解析代码；
+  void OnePointSolvePnP(Point2f &armorCenter, float &angle_x, float &angle_y);
+
+  //四个像素点角度
+  void FourPointSolvePnP(RotatedRect &rect_, float &angle_x, float &angle_y,
+                         float &dis);
 
  public:
   Mat cameraMatrix, distCoeffs;
@@ -86,6 +91,10 @@ class AngleSolver {
   float rune_distance;
   Settings *settings_;
   Flag *flag;
+
+  RotatedRect imageToAngle;
+  //自瞄参数选择；
+  int angleProcess = 0;
 };
 #endif
 
@@ -171,6 +180,20 @@ class Settings {
   // double scale_z_480 = 1.0;
   // std::string &filename;
 };
+
+/**
+ * @brief:
+ * @param {type}
+ * @return:
+ * @author: Chinwong_Leung
+ */
+class CameraImageToPoint {
+ public:
+  CameraImageToPoint();
+  void GetFinalImageToPoint(RotatedRect &image) { finalImageToPoint = image; }
+  RotatedRect finalImageToPoint;
+};
+
 }  // namespace angle_solver
 }  // namespace detect
 //官方代码修改
