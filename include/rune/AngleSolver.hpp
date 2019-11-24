@@ -4,7 +4,7 @@
  * @Github: https://github.com/ZhanhongLiang
  * @Date: 2019-10-23 22:02:27
  * @LastEditors: Chinwong_Leung
- * @LastEditTime: 2019-11-19 18:36:33
+ * @LastEditTime: 2019-11-21 15:50:13
  */
 
 #ifndef ANGLESOLVER_H
@@ -66,6 +66,9 @@ class AngleSolver {
   //四个像素点角度
   void FourPointSolvePnP(RotatedRect &rect_, float &angle_x, float &angle_y,
                          float &dis);
+
+  //重力补偿算法，利用
+  void GravityPitch();
 
  public:
   Mat cameraMatrix, distCoeffs;

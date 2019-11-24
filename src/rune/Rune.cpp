@@ -4,7 +4,7 @@
  * @Github: https://github.com/ZhanhongLiang
  * @Date: 2019-09-05 20:23:33
  * @LastEditors: Chinwong_Leung
- * @LastEditTime: 2019-11-20 21:44:59
+ * @LastEditTime: 2019-11-24 20:10:13
  */
 
 #define BUFF_DEBUG
@@ -65,9 +65,10 @@ bool Buff_Detector::SetBinary(const Mat src_img, Mat &bin_img, int bMode) {
            getStructuringElement(MORPH_RECT, Size(5, 5)));  //腐蚀图片
     // morphologyEx(temp_binary_img, temp_binary_img, CV_MOP_CLOSE,
     // param.element); imshow("temp_binary_img", temp_binary_img);
-    cvWaitKey(20);
     // mask操作
-    bin_img = gray_binary_img & temp_binary_img;  //相与
+    // bin_img = gray_binary_img & temp_binary_img;  //相与
+    imshow("bin_img", bin_img);
+    waitKey(20);
   }
   // HSV处理
   else if (bMode == HSV) {
@@ -108,6 +109,28 @@ bool Buff_Detector::SetBinary(const Mat src_img, Mat &bin_img, int bMode) {
     threshold(gray_img, temp_binary_img, 55, 255, THRESH_OTSU);
     bin_img = temp_binary_img;
     // imshow("OTUS_BIN_IMG", bin_img);
+  }
+  //第二次HSV算法
+  else if (bMode = HSVII) {
+    //分离通道
+    vector<Mat> hsvChannels;
+    split(src_img, hsvChannels);
+    if (tSelect == RED_ANCLOCK || tSelect == RED_CLOCK) {
+      Mat midImage = hsvChannels[2] - hsvChannels[0];
+      threshold(midImage, midImage, 100, 255, CV_THRESH_BINARY);
+      // imshow("midImage:", midImage);
+      // waitKey(20);
+      //膨胀
+      dilate(midImage, midImage, param.element3);
+      // imshow("dilate: ", midImage);
+      // waitKey(20);
+      //闭运算,消除空洞
+      morphologyEx(midImage, midImage, MORPH_CLOSE, param.element3);
+      imshow("midImage", midImage);
+      waitKey(20);
+    } else if (tSelect == BLUE_ANCLOCK || tSelect == BLUE_CLOCK) {
+      Mat midImage = hsvChannels[0] - hsvChannels[2];
+    }
   } else {
     return false;
   }
@@ -546,6 +569,133 @@ bool Buff_Detector::GetArmorCenter(
 
 /**
  * @brief:
+ * @param {type}
+ * @return:
+ * @author: Chinwong_Leung
+ */
+bool Buff_Detector::GetArmorCenterII(const Mat src_img, const int bMode_,
+                                     ArmorData &data_, Point2f offset) {
+  vector<vector<Point>> contours_;
+  vector<Vec4i> hierarchy_;
+  Mat set_bin_img;
+  Mat drawing_img = Mat::zeros(src_img.size(), CV_8UC3);
+#ifdef FLAGCNT
+  int cnt = 0;
+#endif  // FLAGCNT
+
+  RotatedRect rect_tmp2;
+  bool findTarget = 0;
+  if (SetBinary(src_img, set_bin_img, bMode_) == false)
+    return false;
+  else {
+    //这个尝试性添加
+    // dilate(src_img, set_bin_img, param.element, Point(0, 0));
+    findContours(set_bin_img, contours_, hierarchy_, RETR_TREE,
+                 CHAIN_APPROX_SIMPLE);
+    int contourSize = contours_.size();
+    if (contourSize == 0) {
+      return false;
+    } else {
+      if (hierarchy_.size()) {
+        // for (int i = 0; i < contourSize; i++) {
+        //   drawContours(drawing_img, contours_, i, Scalar(255, 255, 255), 1,
+        //   8,
+        //                hierarchy_, 0, Point());
+        // }
+        // imshow("draw_img", drawing_img);
+        for (int i = 0; i >= 0; i = hierarchy_[i][0]) {
+          rect_tmp2 = minAreaRect(contours_[i]);
+          Point2f P[4];
+          rect_tmp2.points(P);
+
+          Point2f srcRect[4];
+          Point2f dstRect[4];
+
+          float width;
+          float height;
+
+          width = Distance(P[0], P[1]);
+          height = Distance(P[1], P[2]);
+
+          if (width < height) {
+            srcRect[0] = P[0];
+            srcRect[1] = P[1];
+            srcRect[2] = P[2];
+            srcRect[3] = P[3];
+          } else {
+            float temp = width;
+            width = height;
+            height = temp;
+            srcRect[0] = P[3];
+            srcRect[1] = P[2];
+            srcRect[2] = P[1];
+            srcRect[3] = P[0];
+          }
+#ifdef DEBUG_RUNE
+          Scalar color_(rand() & 255, rand() & 255, rand() & 255);
+          drawContours(drawing_img, contours_, i, color_, 1, 8, hierarchy_, 0,
+                       Point());
+#endif  // DEBUG_RUNE
+          float area = width * height;
+          if (area > 5000) {
+            dstRect[0] = Point2f(0, 0);
+            dstRect[1] = Point2f(width, 0);
+            dstRect[2] = Point2f(width, height);
+            dstRect[3] = Point2f(0, height);
+          }
+          //透视变换
+          Mat transform = getPerspectiveTransform(srcRect, dstRect);
+          Mat dst;
+          warpPerspective(set_bin_img, dst, transform, set_bin_img.size());
+
+          //提取扇叶图片
+          Mat testFlag;
+          testFlag = dst(Rect(0, 0, width, height));  //保留截图
+
+#ifdef FLAGCNT
+          string s = "flag" + to_string(cnt) + ".jpg";
+          cnt++;
+          imwrite("./img/" + s, testFlag);
+#endif
+
+#ifdef DEBUG_RUNE
+          // imshow("testFlag", testFlag);
+          // imshow("dst", dst);
+#endif
+          // imshow("dst", dst);
+          // waitKey(200);
+          // for (int j = 0; j < 4; j++) {
+          //   circle(dst, dstRect[j], 5, Scalar(255, 0, 255), -1, CV_AA);
+          // }
+          if (testFlag.empty()) {
+            std::cout << "TestFlat is empty!!" << std::endl;
+          }
+          //模板匹配的思路，利用模板匹配来进行区分击打和未击打
+#ifdef USETEMPLATE
+          Point loc;
+          double value;
+          Mat tmpMat;
+          resize(testFlag, tmpMat, Size(42, 20));
+#endif  // USETEMPLATE
+#ifdef USETEMPLATE
+          vector<double> vValue1;
+          vector<double> vValue2;
+
+#endif  // USETEMPLATE
+        }
+        // imshow("draw_img", drawing_img);
+        // waitKey(200);
+      } else {
+        return false;
+      }
+      return true;
+    }
+  }
+  return true;
+}
+
+/**
+ * @brief:
  * @param src_img
  * @param bMode
  * @param data
@@ -572,10 +722,10 @@ void Buff_Detector::Detect(const Mat frame, int Mode, Point2f &pt, int &status,
   SetImage(frame, src, offset);  // roi操作??
   // imshow("roi_process", src);
 
-  if (sParam.debug) {
-    debug_src_img = frame.clone();
-    imshow("debug_src_img", debug_src_img);
-  }
+  // if (sParam.debug) {
+  //   debug_src_img = frame.clone();
+  //   imshow("debug_src_img", debug_src_img);
+  // }
   cvWaitKey(20);
   tSelect = Mode;  //模式参数选择,提供接口
   if (tSelect == 1 || tSelect == 2 || tSelect == 3 || tSelect == 4)  //大符
@@ -604,6 +754,26 @@ void Buff_Detector::Detect(const Mat frame, int Mode, Point2f &pt, int &status,
     return;
   }
   // Mat src = src_img;
+}
+
+/**
+ * @brief:
+ * @param {type}
+ * @return:
+ * @author: Chinwong_Leung
+ */
+void Buff_Detector::DetectII(const Mat frame, int Mode, Point2f &pt,
+                             int &status) {
+  Point2f offset = Point2f(0, 0);
+  Mat src = frame;
+  SetImage(frame, src, offset);  // roi操作?
+
+  ArmorData data;
+  if (GetArmorCenterII(src, Mode, data, Point2f(0, 0)) == false) {
+    std::cout << "false" << std::endl;
+  } else {
+    std::cout << "OK" << std::endl;
+  }
 }
 
 /**

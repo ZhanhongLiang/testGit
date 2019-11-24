@@ -15,7 +15,7 @@ include_directories(
 #add_sourcr_directory(. DIR_SRCS)
 
 #输出的.cpp的文件
-add_executable(main main.cpp)
+add_executable(main testRune.cpp)
 
 #项目包括的目录
 target_include_directories(main

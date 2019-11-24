@@ -4,7 +4,7 @@
  * @Github: https://github.com/ZhanhongLiang
  * @Date: 2019-09-05 20:23:52
  * @LastEditors: Chinwong_Leung
- * @LastEditTime: 2019-11-20 19:38:23
+ * @LastEditTime: 2019-11-24 19:59:08
  */
 
 #ifndef BUFF_DETECTOR_H_
@@ -22,7 +22,12 @@ namespace armor {
 #define NO_TARGET -1
 #define MAX_NUM 921600  //???
 #define FRAME_NUM 20
-
+#define FLAGCNT  //保存风车的图片
+//#define USETEMPLATE  //利用模板匹配来筛选第一种思路
+#define USESVM     //利用svm来进行筛选，第二种思路
+#define USEVIDEO   //利用video进行调试
+#define SAVEVIDEO  //保存视频进行调试
+#define DEBUG_RUNE
 class Object;
 
 class Buff_Detector {
@@ -42,6 +47,7 @@ class Buff_Detector {
     HSV = 2,
     GRAY = 3,
     OTSU = 4,
+    HSVII = 5,
   };
   //一般选择的是切线模式
   enum PredictMode { FIT_CIRCLE = 1, PUSH_CIRCLE = 2, TANGENT = 3 };
@@ -78,6 +84,8 @@ class Buff_Detector {
     int bMode;  //灰度图的模式
     int pMode;  //预测画圆的模式
     Mat element;
+    Mat element2;
+    Mat element3;
     int radius;  //圆的直径
 
     float noise_point_area;  //噪点的面积
@@ -101,6 +109,8 @@ class Buff_Detector {
       pMode = TANGENT;
       // getArmorCenter
       element = getStructuringElement(MORPH_RECT, Size(7, 7));
+      element2 = getStructuringElement(MORPH_RECT, Size(5, 5), Point2f(2, 2));
+      element3 = getStructuringElement(MORPH_RECT, Size(7, 7), Point2f(3, 3));
       noise_point_area = 200;     //噪点面积
       flabellum_area_min = 3500;  // standard:7000
       flabellum_area_max = 7000;  // 扇形最大面积
@@ -151,6 +161,7 @@ class Buff_Detector {
                       Point2f offset);  //, ArmorData &data, point2f offset);
   void Detect(const Mat src_img, int Mode, Point2f &pt, int &status,
               RotatedRect &rect);  //,Point2f &pt,int status)
+  void DetectII(const Mat src_img, int Mode, Point2f &pt, int &status);
   float Distance(const Point2f pt1, const Point2f pt2);
   bool CircleFit(const vector<Point2f> &pt, Point2f &R_center);
   bool Predict(const ArmorData data, Point2f &preCenter, int pMode);
@@ -159,6 +170,10 @@ class Buff_Detector {
   bool Change2Angle(const int quadrant, const float angle, float &tran_angle);
   void GetArmorRect(const RotatedRect &rect);
   void IsCut(const ArmorData new_data, int &status);
+
+  //第二种思路
+  bool GetArmorCenterII(const Mat src_img, const int bMode_, ArmorData &data_,
+                        Point2f offset);
   void clear();
 
   bool GetFrameClock();
