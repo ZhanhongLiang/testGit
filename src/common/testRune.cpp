@@ -133,7 +133,7 @@ static bool CircleInfo2(std::vector<cv::Point2f>& pts, cv::Point2f& center,
 //模板匹配
 double TemplateMatch(cv::Mat image, cv::Mat tepl, cv::Point& point,
                      int method) {
-  int result_cols = image.cols - tepl.cols + 1;
+  int result_cols = image.cols - tepl.cols + 1;  //储存的结果图像
   int result_rows = image.rows - tepl.rows + 1;
   //    cout <<result_cols<<" "<<result_rows<<endl;
   cv::Mat result = cv::Mat(result_cols, result_rows, CV_32FC1);
@@ -141,7 +141,8 @@ double TemplateMatch(cv::Mat image, cv::Mat tepl, cv::Point& point,
 
   double minVal, maxVal;
   cv::Point minLoc, maxLoc;
-  cv::minMaxLoc(result, &minVal, &maxVal, &minLoc, &maxLoc, Mat());
+  cv::minMaxLoc(result, &minVal, &maxVal, &minLoc, &maxLoc,
+                Mat());  //在模板滑动的结果图像寻找最小值或者最大值
 
   switch (method) {
     case CV_TM_SQDIFF:
@@ -158,7 +159,7 @@ double TemplateMatch(cv::Mat image, cv::Mat tepl, cv::Point& point,
 //#define USE_CAMERA
 //#define SAVE_VIDEO
 //#define LEAF_IMG
-//#define DEBUG
+#define DEBUG
 //#define DEBUG_LOG
 #define USE_TEMPLATE
 //#define USE_SVM
@@ -441,7 +442,8 @@ int main(int argc, char* argv[]) {
                   cirV.erase(cirV.begin());
                 }
                 if (cc.x != 0 && cc.y != 0) {
-                  Mat rot_mat = getRotationMatrix2D(cc, 30, 1);
+                  Mat rot_mat = getRotationMatrix2D(
+                      cc, 30, 1);  //计算出旋转矩阵，进行预击打点
 #endif
 #if (defined DEBUG_LOG) && (defined SHOW_CIRCLE)
                   cout << endl << "center1 " << cc.x << " , " << cc.y << endl;

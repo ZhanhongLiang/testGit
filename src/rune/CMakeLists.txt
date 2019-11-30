@@ -13,8 +13,8 @@ include_directories(
 #添加一个库
 add_library(
     rune
-    Rune.cpp
-    AngleSolver.cpp
+    TestAngleSolver.cpp
+    Armor_Detector.cpp
 )
 
 #添加动态链接库的位置
